@@ -36,6 +36,7 @@ kubectl exec -ti $(kubectl get pods --namespace default -l app=kapacitor-kapacit
 kubectl port-forward --namespace default $(kubectl get pods --namespace default -l app=chronograf-chronograf -o jsonpath='{ .items[0].metadata.name }') 8888
 ```
 Go to `http://locahost:8888` and configure
+
 | Name | Value |
 | ---- | ----- |
 | Connection string | http://chronograf-chronograf.default.svc:8086 |
