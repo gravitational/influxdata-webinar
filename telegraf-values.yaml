@@ -1,0 +1,22 @@
+---
+image:
+  tag: 1.4-alpine
+
+service:
+  enabled: false
+
+daemonset:
+  config:
+    outputs:
+      influxdb:
+        urls:
+          - http://influxdb-influxdb.default.svc:8086
+        database: telegraf
+        username: "admin"
+        password: "passw0rd"
+    inputs:
+      docker:
+        docker_label_exclude: ["annotation.kubernetes*"]
+
+single:
+  enabled: false

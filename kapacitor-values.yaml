@@ -1,0 +1,9 @@
+---
+image:
+  tag: 1.3-alpine
+
+envVars:
+  KAPACITOR_INFLUXDB_USERNAME: "admin"
+  KAPACITOR_INFLUXDB_PASSWORD: "passw0rd"
+
+influxURL: http://influxdb-influxdb.default.svc:8086

@@ -1,0 +1,12 @@
+---
+image:
+  tag: 1.3-alpine
+
+setDefaultUser:
+  enabled: true
+  image: appropriate/curl:latest
+  restartPolicy: OnFailure
+  user:
+    username: admin
+    password: passw0rd
+    privileges: "WITH ALL PRIVILEGES"
