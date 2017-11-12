@@ -31,10 +31,10 @@ spec:
 
     var percent_used = cpu_total
         |join(usage_rate)
-            .as('usage_rate', 'total')
+            .as('total', 'usage_rate')
             .tolerance(30s)
             .on('nodename')
-            .streamName('percent_used')
+            .streamName('joined')
         |eval(lambda: (float("usage_rate.value") * 100.0) / float("total.value"))
             .as('percent_usage')
         |mean('percent_usage')
