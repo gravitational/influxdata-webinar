@@ -14,7 +14,7 @@ spec:
     var usage_rate = stream
         |from()
             .measurement('cpu/usage_rate')
-            .groupBy('pod_name')
+            .groupBy('pod_name', 'nodename')
             .where(lambda: "type" == 'pod')
         |window()
             .period(period)
@@ -29,10 +29,11 @@ spec:
             .period(period)
             .every(every)
 
-    var percent_used = usage_rate
-        |join(cpu_total)
+    var percent_used = cpu_total
+        |join(usage_rate)
             .as('usage_rate', 'total')
             .tolerance(30s)
+            .on('nodename')
             .streamName('percent_used')
         |eval(lambda: (float("usage_rate.value") * 100.0) / float("total.value"))
             .as('percent_usage')
