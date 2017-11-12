@@ -1,0 +1,58 @@
+kind: alert
+version: v2
+metadata:
+  name: pod-high-cpu
+spec:
+  formula: |
+    var period = 5m
+    var every = 1m
+    var warnRate = 25
+    var warnReset = 50
+    var critRate = 90
+    var critReset = 75
+
+    var usage_rate = stream
+        |from()
+            .measurement('cpu/usage_rate')
+            .groupBy('pod_name')
+            .where(lambda: "type" == 'pod')
+        |window()
+            .period(period)
+            .every(every)
+
+    var cpu_total = stream
+        |from()
+            .measurement('cpu/node_capacity')
+            .groupBy('nodename')
+            .where(lambda: "type" == 'node')
+        |window()
+            .period(period)
+            .every(every)
+
+    var percent_used = usage_rate
+        |join(cpu_total)
+            .as('usage_rate', 'total')
+            .tolerance(30s)
+            .streamName('percent_used')
+        |eval(lambda: (float("usage_rate.value") * 100.0) / float("total.value"))
+            .as('percent_usage')
+        |mean('percent_usage')
+            .as('avg_percent_used')
+
+    var trigger = percent_used
+        |alert()
+            .message('{{ .Level}} / Pod {{ index .Tags "pod_name" }} has high cpu usage: {{ index .Fields "avg_percent_used" }}%')
+            .warn(lambda: "avg_percent_used" > warnRate)
+            .warnReset(lambda: "avg_percent_used" < warnReset)
+            .crit(lambda: "avg_percent_used" > critRate)
+            .critReset(lambda: "avg_percent_used" < critReset)
+            .stateChangesOnly()
+            .details('''
+    <b>{{ .Message }}</b>
+    <p>Level: {{ .Level }}</p>
+    <p>Nodename: {{ index .Tags "pod_name" }}</p>
+    <p>Usage: {{ index .Fields "avg_percent_used"  | printf "%0.2f" }}%</p>
+    ''')
+            .email()
+            .log('/var/lib/kapacitor/logs/pod_high_cpu.log')
+            .mode(0644)
