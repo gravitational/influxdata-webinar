@@ -83,6 +83,16 @@ section {
                   <p>Multi-Region Kubernetes for Deploying and Managing Distributed Applications</p>
 				</section>
 
+				<section align="left">
+                  <h3>About Telekube: Overivew</h3>
+                  <img src="images/clusters.svg" style="border:none;box-shadow:none;width:40%;"></img>
+                  <br>
+                  <ul>
+                    <li>~100 production clusters</li>
+                    <li>3-20 nodes per cluster</li>
+                  </ul>
+				</section>                
+
 				<section align="left" valign="top">
                   <h2>This Webinar: Overview</h2>
                   <br>
@@ -95,7 +105,8 @@ section {
                   <h3>
                     Choosing Time Series Platform: Prometheus
                   </h3>
-                  <img src="images/prometheus.svg" style="border:none;box-shadow:none;width:100px;float:left;padding:10px;">
+                  <img src="images/prometheus.svg" style="border:none;box-shadow:none;width:100px;padding:10px;">
+                  <h3>Pros:</h3>
                   <br/>
                   <p>Performant: 800K writes/second per node</p>
                   <p>First Class Kubernetes Integration</p>
@@ -107,7 +118,8 @@ section {
                     Choosing Time Series Platform: Prometheus
                     </img>
                   </h3>
-                  <img src="images/prometheus.svg" style="border:none;box-shadow:none;width:100px;float:left;padding:10px;">
+                  <img src="images/prometheus.svg" style="border:none;box-shadow:none;width:100px;padding:10px;">
+                  <h3>Cons:</h3>
                   <br/>
                   <blockquote cite="https://news.ycombinator.com/item?id=15652609" style="box-shadow:none;">
                     &ldquo;Prometheus is not intended as durable long term storage, it's fundamentally limited to the size of a machine. You should also design your monitoring be able to tolerate completely losing the data of a Prometheus.&ldquo;
@@ -122,10 +134,9 @@ section {
                     Choosing Time Series Platform: OpenTSDB
                     </img>
                   </h3>
-                  <img src="images/opentsdb.png" style="border:none;box-shadow:none;width:200px;float:left;padding:10px;">
+                  <img src="images/opentsdb.png" style="border:none;box-shadow:none;width:200px;padding:10px;">
+                  <h3>Pros:</h3>
                   <br/>
-                  <br/>
-                  <br/>                                    
                   <p>Performant: 300K metrics/second, scales linearly</p>
                   <p>Proven Backends: Cassandra, HBASE</p>
 				</section>
@@ -135,10 +146,9 @@ section {
                     Choosing Time Series Platform: OpenTSDB
                     </img>
                   </h3>
-                  <img src="images/opentsdb.png" style="border:none;box-shadow:none;width:200px;float:left;padding:10px;">
+                  <img src="images/opentsdb.png" style="border:none;box-shadow:none;width:200px;padding:10px;">
+                  <h3>Cons:</h3>
                   <br/>
-                  <br/>
-                  <br/>                                    
                   <p>Operational Footprint: HBase, Zookeeper, Java</p>
 				</section>
 
@@ -148,6 +158,8 @@ section {
                     </img>
                   </h3>
                   <img src="images/influxdb.svg" style="border:none;box-shadow:none;width:300px;padding:0px;">
+                  <h3>Pros:</h3>
+                  <br/>                  
                   <p>Performant: 200K writes/second</p>
                   <p>Low Operational footprint (Go, low memory usage)</p>
                   <p>Retention Policies and Rollups</p>
@@ -161,9 +173,11 @@ section {
                     </img>
                   </h3>
                   <img src="images/influxdb.svg" style="border:none;box-shadow:none;width:300px;padding:0px;">
-                  <p>Weaker Kubernetes Integration: Kapacitor, Telegraf should be better</p>
-                  <p>Kapacitor is hard</p>
-                  <p>No OSS HA</p>                                    
+                  <h3>Cons:</h3>
+                  <br/>                  
+                  <p>Weaker Kubernetes Integration: Kapacitor</p>
+                  <p>Kapacitor is hard!</p>
+                  <p>No OSS HA</p>                               
 				</section>
 
 				<section align="left" valign="top">
@@ -193,7 +207,83 @@ section {
                   <h2>Monitoring Kubernetes with TICK</h2>
                   <br>
                   <p>Break the cluster!</p>
-				</section>                
+				</section>
+
+                <section align="left" valign="top">
+                  <h2>Monitoring Kubernetes with TICK: filesystem</h2>
+				  <pre align="left">
+                    <code>
+    var inodes_total = stream
+        |from()
+            .measurement('filesystem/inodes')
+            .groupBy('nodename', 'resource_id')
+            .where(lambda: "type" == 'node')
+        |window()
+            .period(period)
+            .every(every)
+                    </code>
+                    <br>
+                  </pre>
+                </section>
+                
+                <section align="left" valign="top">
+                  <h2>Monitoring Kubernetes with TICK: networking</h2>
+				  <pre align="left">
+                    <code>
+    var deadman_br_netfilter = data_br_netfilter
+        |deadman(0.0, 5m)
+            .message('br_netfilter module is not loaded on node {{ index .Tags "nodename" }}')
+            .email()
+                    </code>
+                    <br>
+                  </pre>
+                </section>
+                
+                <section align="left" valign="top">
+                  <h2>Monitoring Kubernetes with TICK: Etcd</h2>
+				  <pre align="left">
+                    <code>
+    var etcd_health_deadman = data_etcd_health
+        |deadman(0.0, 5m)
+            .message('etcd cluster is {{ if eq .Level "OK" }}alive{{ else }}unhealthy{{ end }}')
+            .email()
+            .log('/var/lib/kapacitor/logs/etcd_health.log')
+            .mode(0644)
+                    </code>
+                    <br>
+                  </pre>
+                </section>
+
+                <section align="left" valign="top">
+                  <h2>Monitoring Kubernetes with TICK: Kubernetes</h2>
+				  <pre align="left">
+                    <code>
+    var data_kubernetes = stream
+        |from()
+            .measurement('satellite_k8s_node_ready')
+            .groupBy('node')
+        |window()
+            .period(period)
+            .every(every)
+            .align()
+        |default()
+            .field('gauge', -1)
+                    </code>
+                    <br>
+                  </pre>
+                </section>
+
+                <section align="left" valign="top">
+                  <h2>Monitoring Kubernetes with TICK: Kubernetes</h2>
+				  <pre align="left">
+                    <code>
+kind: ConfigMap
+data:
+  docker.tick: |
+                    </code>
+                    <br>
+                  </pre>
+                </section>                
 
 				<section align="left" valign="top">
                   <h2>This Webinar: Overview</h2>
@@ -220,6 +310,14 @@ section {
 
 		<script src="lib/js/head.min.js"></script>
 		<script src="js/reveal.min.js"></script>
+        <style>
+         body {
+             background-image: url(./images/gravitational-logo-full.svg);
+             background-size: 10%;
+             background-repeat: no-repeat;
+             background-position: 3% 96%;
+         }
+        </style>
 
 		<script>
 
