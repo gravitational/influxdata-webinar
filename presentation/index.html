@@ -109,9 +109,13 @@ section {
                   <img src="images/prometheus.svg" style="border:none;box-shadow:none;width:100px;padding:10px;">
                   <h3>Pros:</h3>
                   <br/>
-                  <p>Performant: 800K writes/second per node</p>
+                  <p>Performant: 800K writes/second per node [1]</p>
                   <p>First Class Kubernetes Integration</p>
                   <p>Low Operational footprint (Go, low memory usage)</p>
+                  <br>
+                  <p>
+                    [1] <a href="https://blog.outlyer.com/top10-open-source-time-series-databases">https://blog.outlyer.com/top10-open-source-time-series-databases</a>
+                  </p>
 				</section>
 
 				<section align="left" valign="top">
@@ -138,7 +142,7 @@ section {
                   <img src="images/opentsdb.png" style="border:none;box-shadow:none;width:200px;padding:10px;">
                   <h3>Pros:</h3>
                   <br/>
-                  <p>Performant: 300K metrics/second, scales linearly</p>
+                  <p>Performant: 80K metrics/second, scales linearly</p>
                   <p>Proven Backends: Cassandra, HBASE</p>
 				</section>
 
@@ -161,7 +165,7 @@ section {
                   <img src="images/influxdb.svg" style="border:none;box-shadow:none;width:300px;padding:0px;">
                   <h3>Pros:</h3>
                   <br/>                  
-                  <p>Performant: 200K writes/second</p>
+                  <p>Performant: 350K writes/second</p>
                   <p>Low Operational footprint (Go, low memory usage)</p>
                   <p>Retention Policies and Rollups</p>
                   <p>Upgrade story: Enterprise, Managed Versions with Clustering</p>
@@ -176,9 +180,9 @@ section {
                   <img src="images/influxdb.svg" style="border:none;box-shadow:none;width:300px;padding:0px;">
                   <h3>Cons:</h3>
                   <br/>                  
-                  <p>Weaker Kubernetes Integration: Kapacitor</p>
+                  <p>Weaker Kubernetes Integration</p>
                   <p>Kapacitor is hard!</p>
-                  <p>No OSS HA</p>                               
+                  <p>No OSS Clustering</p>
 				</section>
 
 				<section align="left" valign="top">
@@ -187,7 +191,7 @@ section {
                     </img>
                   </h3>
                   <img src="images/influxdb.svg" style="border:none;box-shadow:none;width:300px;padding:0px;">
-                  <p>HA, Commercial support and Data retention matters</p>
+                  <p>Clustering, Commercial support and Data retention matters</p>
 				</section>                
 
 				<section align="left" valign="top">
